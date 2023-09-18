@@ -13,11 +13,11 @@ module.exports.getUserById = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(404).send();
+        return res.status(404).send({ message: 'Что-то пошло не так' });
       }
       return res.send({ data: user });
     })
-    .catch(() => res.status(500).send({ message: 'Что-то пошло не так' }));
+    .catch(() => res.status(400).send({ message: 'Что-то пошло не так' }));
 };
 
 module.exports.createUser = (req, res) => {
@@ -26,7 +26,7 @@ module.exports.createUser = (req, res) => {
     .catch(() => { res.status(400).send({ message: 'Переданы некорректные данные' }); });
 };
 
-module.exports.updateUser = (req, res, next) => {
+module.exports.updateUser = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { name: req.body.name, about: req.body.about },
@@ -39,13 +39,12 @@ module.exports.updateUser = (req, res, next) => {
   }).catch((err) => {
     if (err.name === 'ValidationError') {
       res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
-    } else {
-      next(err);
     }
+    res.status(400).send({ message: 'Что-то пошло не так' });
   });
 };
 
-module.exports.updateAvatar = (req, res, next) => {
+module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { avatar: req.body.avatar },
@@ -60,8 +59,6 @@ module.exports.updateAvatar = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
-      } else {
-        next(err);
-      }
+      } res.status(400).send({ message: 'Что-то пошло не так' });
     });
 };

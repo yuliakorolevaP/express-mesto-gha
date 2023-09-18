@@ -23,7 +23,7 @@ module.exports.deleteCard = (req, res, next) => {
   // eslint-disable-next-line consistent-return
   Card.findById(req.params.cardId).then((cards) => {
     if (!cards) {
-      return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
+      return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
     }
     cards.deleteOne().then(() => res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
   })
@@ -36,7 +36,7 @@ module.exports.deleteCard = (req, res, next) => {
     });
 };
 
-module.exports.likeCard = (req, res, next) => {
+module.exports.likeCard = (req, res) => {
   const { cardId } = req.params;
   const user = req.user._id;
   Card.findByIdAndUpdate(
@@ -52,9 +52,9 @@ module.exports.likeCard = (req, res, next) => {
         return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(400).send({ message: 'Передан несуществующий _id карточки.' });
+        return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
       }
-      next(err);
+      return res.status(404).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -74,6 +74,6 @@ module.exports.dislikeCard = (req, res, next) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(400).send({ message: 'Передан несуществующий _id карточки.' });
       }
-      next(err);
+      return res.status(404).send({ message: 'Что-то пошло не так' });
     });
 };
