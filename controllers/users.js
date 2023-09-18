@@ -35,6 +35,18 @@ module.exports.updateUser = (req, res) => {
     if (user === null) {
       res.status(500).send({ message: `Пользователь c _id ${req.user._id} не найден.` });
     }
+    if (user.name.length <= 1) {
+      res.status(400).send({ message: 'Имя пользователя должно быть больше 1 и меньше 30 символов' });
+    }
+    if (user.name.length >= 30) {
+      res.status(400).send({ message: 'Имя пользователя должно быть больше 1 и меньше 30 символов' });
+    }
+    if (user.about.length <= 1) {
+      res.status(400).send({ message: 'Описание пользователя должно быть больше 1 и меньше 30 символов' });
+    }
+    if (user.about.length >= 30) {
+      res.status(400).send({ message: 'Описание пользователя должно быть больше 1 и меньше 30 символов' });
+    }
     res.send(user);
   }).catch((err) => {
     if (err.name === 'ValidationError') {
