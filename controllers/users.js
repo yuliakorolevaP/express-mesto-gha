@@ -30,7 +30,7 @@ module.exports.updateUser = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { name: req.body.name, about: req.body.about },
-    { new: true },
+    { new: true, runValidators: true },
   // eslint-disable-next-line consistent-return
   ).then((user) => {
     if (user === null) {
@@ -38,10 +38,7 @@ module.exports.updateUser = (req, res) => {
     }
     res.send(user);
   }).catch((err) => {
-    if (err.name === 'ValidationError') {
-      return res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
-    }
-    if (err.name === 'CastError') {
+    if (err.name === 'CastError' || err.name === 'ValidationError') {
       return res.status(400).send({ message: 'Некорректные данные пользователя' });
     }
     return res.status(400).send({ message: 'Что-то пошло не так' });
@@ -52,7 +49,7 @@ module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { avatar: req.body.avatar },
-    { new: true },
+    { new: true, runValidators: true },
   // eslint-disable-next-line consistent-return
   ).then((user) => {
     if (user === null) {
