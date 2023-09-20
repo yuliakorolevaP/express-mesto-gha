@@ -31,8 +31,7 @@ module.exports.deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Некорректные данные карточки' });
-      }
-      // next(err);
+      } return res.status(500).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -54,7 +53,7 @@ module.exports.likeCard = (req, res) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
       }
-      return res.status(404).send({ message: 'Что-то пошло не так' });
+      return res.status(500).send({ message: 'Что-то пошло не так' });
     });
 };
 
@@ -74,6 +73,6 @@ module.exports.dislikeCard = (req, res) => {
       if (err.name === 'DocumentNotFoundError') {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
       }
-      return res.status(404).send({ message: 'Что-то пошло не так' });
+      return res.status(500).send({ message: 'Что-то пошло не так' });
     });
 };

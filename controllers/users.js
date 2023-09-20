@@ -17,13 +17,18 @@ module.exports.getUserById = (req, res) => {
       }
       return res.send({ data: user });
     })
-    .catch(() => res.status(400).send({ message: 'Что-то пошло не так' }));
+    .catch(() => res.status(500).send({ message: 'Что-то пошло не так' }));
 };
 
 module.exports.createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar }).then((user) => res.send({ data: user }))
-    .catch(() => { res.status(400).send({ message: 'Переданы некорректные данные' }); });
+    .catch((err) => {
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Переданы некорректные данные' });
+      }
+      return res.status(500).send({ message: 'Что-то пошло не так' });
+    });
 };
 
 module.exports.updateUser = (req, res) => {
@@ -41,7 +46,7 @@ module.exports.updateUser = (req, res) => {
     if (err.name === 'CastError' || err.name === 'ValidationError') {
       return res.status(400).send({ message: 'Некорректные данные пользователя' });
     }
-    return res.status(400).send({ message: 'Что-то пошло не так' });
+    return res.status(500).send({ message: 'Что-то пошло не так' });
   });
 };
 
@@ -58,8 +63,8 @@ module.exports.updateAvatar = (req, res) => {
     res.send(user);
   })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
-      } return res.status(400).send({ message: 'Что-то пошло не так' });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        return res.status(400).send({ message: `Некорректные данные пользователя: ${err.message}` });
+      } return res.status(500).send({ message: 'Что-то пошло не так' });
     });
 };
