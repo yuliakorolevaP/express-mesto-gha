@@ -17,7 +17,7 @@ module.exports.getUserById = (req, res) => {
       }
       return res.send({ data: user });
     })
-    .catch(() => res.status(500).send({ message: 'Что-то пошло не так' }));
+    .catch(() => res.status(400).send({ message: 'Что-то пошло не так' }));
 };
 
 module.exports.createUser = (req, res) => {
