@@ -32,7 +32,7 @@ module.exports.deleteCard = (req, res, next) => {
       if (err.name === 'CastError') {
         return res.status(400).send({ message: 'Некорректные данные карточки' });
       }
-      next(err);
+      // next(err);
     });
 };
 

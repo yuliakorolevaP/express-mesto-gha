@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routerUsers = require('./routes/users');
-const router = require('./routes/cards');
+const routerCards = require('./routes/cards');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
   res.send('13 Проектная работа');
 });
 app.use('/', routerUsers);
-app.use('/', router);
+app.use('/', routerCards);
 app.all('*', (req, res) => {
   res.status(404).send({ message: '404 страница не найдена' });
 });

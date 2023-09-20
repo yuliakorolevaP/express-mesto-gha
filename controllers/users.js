@@ -30,29 +30,20 @@ module.exports.updateUser = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { name: req.body.name, about: req.body.about },
-    { new: true },
+  // eslint-disable-next-line consistent-return
   ).then((user) => {
     if (user === null) {
-      res.status(500).send({ message: `Пользователь c _id ${req.user._id} не найден.` });
+      return res.status(500).send({ message: `Пользователь c _id ${req.user._id} не найден.` });
     }
-    if (user.name.length <= 1) {
-      res.status(400).send({ message: 'Имя пользователя должно быть больше 1 и меньше 30 символов' });
-    }
-    if (user.name.length >= 30) {
-      res.status(400).send({ message: 'Имя пользователя должно быть больше 1 и меньше 30 символов' });
-    }
-    if (user.about.length <= 1) {
-      res.status(400).send({ message: 'Описание пользователя должно быть больше 1 и меньше 30 символов' });
-    }
-    if (user.about.length >= 30) {
-      res.status(400).send({ message: 'Описание пользователя должно быть больше 1 и меньше 30 символов' });
+    if (user === 'CastError') {
+      return res.status(400).send({ message: 'Некорректные данные пользователя' });
     }
     res.send(user);
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
+      return res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
     }
-    res.status(400).send({ message: 'Что-то пошло не так' });
+    return res.status(400).send({ message: 'Что-то пошло не так' });
   });
 };
 
@@ -60,17 +51,17 @@ module.exports.updateAvatar = (req, res) => {
   User.findByIdAndUpdate(
     { _id: req.user._id },
     { avatar: req.body.avatar },
-    { new: true },
-  )
-    .then((user) => {
-      if (user === null) {
-        res.status(500).send({ message: `Пользователь c _id ${req.user._id} не найден.` });
-      }
-      res.send(user);
-    })
+    // { new: true },
+  // eslint-disable-next-line consistent-return
+  ).then((user) => {
+    if (user === null) {
+      return res.status(500).send({ message: `Пользователь c _id ${req.user._id} не найден.` });
+    }
+    res.send(user);
+  })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
-      } res.status(400).send({ message: 'Что-то пошло не так' });
+        return res.status(500).send({ message: `Некорректные данные пользователя: ${err.message}` });
+      } return res.status(400).send({ message: 'Что-то пошло не так' });
     });
 };
