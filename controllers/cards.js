@@ -1,7 +1,9 @@
+const { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND } = require('http2').constants;
 const Card = require('../models/card');
 
 module.exports.getCard = (req, res) => {
-  Card.find({}).then((cards) => { res.send({ data: cards }); }).catch(() => { res.status(500).send({ message: 'Произошла ошибка' }); });
+  Card.find({}).then((cards) => { res.send({ data: cards }); })
+    .catch(() => { res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }); });
 };
 
 module.exports.createCard = (req, res) => {
@@ -13,9 +15,9 @@ module.exports.createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
       }
-      return res.status(500).send({ message: 'Что-то пошло не так' });
+      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
@@ -23,15 +25,15 @@ module.exports.deleteCard = (req, res, next) => {
   // eslint-disable-next-line consistent-return
   Card.findById(req.params.cardId).then((cards) => {
     if (!cards) {
-      return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
     }
     cards.deleteOne().then(() => res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
   })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Некорректные данные карточки' });
-      } return res.status(500).send({ message: 'Что-то пошло не так' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+      } return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
@@ -48,12 +50,12 @@ module.exports.likeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      return res.status(500).send({ message: 'Что-то пошло не так' });
+      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
@@ -68,11 +70,11 @@ module.exports.dislikeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные для постановки/снятии лайка.' });
+        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
       }
-      return res.status(500).send({ message: 'Что-то пошло не так' });
+      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
     });
 };

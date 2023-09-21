@@ -1,3 +1,4 @@
+const { HTTP_STATUS_NOT_FOUND } = require('http2').constants;
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -29,7 +30,7 @@ app.get('/', (req, res) => {
 app.use('/', routerUsers);
 app.use('/', routerCards);
 app.all('*', (req, res) => {
-  res.status(404).send({ message: '404 страница не найдена' });
+  res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Страница не найдена' });
 });
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
