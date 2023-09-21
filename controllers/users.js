@@ -67,10 +67,9 @@ module.exports.updateAvatar = (req, res) => {
       return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
     }
     res.send(user);
-  })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
-      } return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
-    });
+  }).catch((err) => {
+    if (err.name === 'ValidationError') {
+      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+    } return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+  });
 };
