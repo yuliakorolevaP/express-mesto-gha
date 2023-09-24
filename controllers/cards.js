@@ -30,7 +30,6 @@ module.exports.deleteCard = (req, res, next) => {
       card.deleteOne().then(() => res.status(200).res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
     }
     res.status(403).send({ message: 'Доступ запрещен' });
-    // card.deleteOne().then(() => res.status(200).res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
   })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
