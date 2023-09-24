@@ -23,11 +23,13 @@ module.exports.createCard = (req, res) => {
 
 module.exports.deleteCard = (req, res, next) => {
   // eslint-disable-next-line consistent-return
-  Card.findById(req.params.cardId).then((cards) => {
-    if (!cards) {
+  Card.findById(req.params.cardId).then((card) => {
+    if (!card) {
       return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+    } if (!card.owner.equals(req.user._id)) {
+      return res.status(403).send({ message: 'Доступ запрещен' });
     }
-    cards.deleteOne().then(() => res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
+    card.deleteOne().then(() => res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
   })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
