@@ -16,12 +16,12 @@ const {
 
 routerUsers.get('/users', getAllUsers);
 
+routerUsers.get('/users/me', getCurrentUser);
+
 routerUsers.get('/users/:userId', validationUserId, getUserById);
 
 routerUsers.patch('/users/me', validationUpdateUser, updateUser);
 
 routerUsers.patch('/users/me/avatar', validationUpdateAvatar, updateAvatar);
-
-routerUsers.get('/me', getCurrentUser);
 
 module.exports = routerUsers;
