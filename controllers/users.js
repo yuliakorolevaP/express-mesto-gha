@@ -2,6 +2,7 @@ const {
   HTTP_STATUS_INTERNAL_SERVER_ERROR,
   HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_UNAUTHORIZED,
 } = require('http2').constants;
+const BadRequest = require('../errors/BadRequest');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
@@ -31,7 +32,7 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
-module.exports.createUser = (req, res) => {
+module.exports.createUser = (req, res, next) => {
   const {
     name, about, avatar, email,
   } = req.body;
@@ -41,7 +42,7 @@ module.exports.createUser = (req, res) => {
     })).then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+        next(new BadRequest('Переданы некорректные данные'));
       }
       if (err.code === 11000) {
         return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
