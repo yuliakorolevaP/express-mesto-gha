@@ -24,17 +24,15 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
 }).catch(() => {
   console.log('Не удалось подключиться к БД');
 });
-
-app.post('/signin', validationLogin, login);
-app.post('/signup', validationCreateUser, createUser);
-
 app.get('/', (req, res) => {
   res.send('13 Проектная работа');
 });
-
 app.use(auth);
 app.use('/', routerUsers);
 app.use('/', routerCards);
+app.post('/signin', validationLogin, login);
+app.post('/signup', validationCreateUser, createUser);
+
 app.all('*', (req, res) => {
   res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Страница не найдена' });
 });
