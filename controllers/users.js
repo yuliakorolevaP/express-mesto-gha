@@ -103,7 +103,7 @@ module.exports.login = (req, res) => {
               res.status(HTTP_STATUS_UNAUTHORIZED)
                 .send({ message: 'Неправильные почта или пароль' });
             } else {
-              const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+              const token = jwt.sign({ _id: user._id }, 'practicum', { expiresIn: '7d' });
               res
                 .status(200)
                 .cookie('jwt', token, { httpOnly: true })
