@@ -26,10 +26,11 @@ module.exports.deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId).then((card) => {
     if (!card) {
       return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
-    } if (!card.owner.equals(req.user._id)) {
-      res.status(403).send({ message: 'Доступ запрещен' });
+    } if (card.owner.toString() === req.user._id) {
+      card.deleteOne().then(() => res.status(200).res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
     }
-    card.deleteOne().then(() => res.status(200).res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
+    res.status(403).send({ message: 'Доступ запрещен' });
+    // card.deleteOne().then(() => res.status(200).res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
   })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
