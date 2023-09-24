@@ -39,11 +39,13 @@ module.exports.createUser = (req, res, next) => {
   bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
-    })).then((user) => res.send({ _id: user._id,
+    })).then((user) => res.send({
+      _id: user._id,
       name: user.name,
       about: user.about,
       avatar: user.avatar,
-      email: user.email }))
+      email: user.email,
+    }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         throw new BadRequest('Некорректный адрес URL');
