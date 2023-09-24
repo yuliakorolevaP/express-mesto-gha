@@ -2,6 +2,7 @@ const { HTTP_STATUS_NOT_FOUND } = require('http2').constants;
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const { errors } = require('celebrate');
 const routerUsers = require('./routes/users');
 const routerCards = require('./routes/cards');
 const { createUser, login } = require('./controllers/users');
@@ -27,15 +28,16 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
 app.get('/', (req, res) => {
   res.send('13 Проектная работа');
 });
+app.post('/signin', validationLogin, login);
+app.post('/signup', validationCreateUser, createUser);
 app.use(auth);
 app.use('/', routerUsers);
 app.use('/', routerCards);
-app.post('/signin', validationLogin, login);
-app.post('/signup', validationCreateUser, createUser);
 
 app.all('*', (req, res) => {
   res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Страница не найдена' });
 });
+app.use(errors());
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
 });
