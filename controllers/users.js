@@ -33,15 +33,18 @@ module.exports.getUserById = (req, res) => {
 
 module.exports.createUser = (req, res) => {
   const {
-    name, about, avatar, email, password,
+    name, about, avatar, email,
   } = req.body;
-  bcrypt.hash(password, 10)
+  bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
       name, about, avatar, email, password: hash,
     })).then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+      }
+      if (err.code === 11000) {
+        return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
       }
       return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
     });

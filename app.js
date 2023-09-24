@@ -23,11 +23,6 @@ mongoose.connect('mongodb://0.0.0.0:27017/mestodb', {
 app.post('/signin', login);
 app.post('/signup', createUser);
 
-// app.use((req, res, next) => {
-//   req.user = { _id: '6503ca52746a22d83a2ad3a6' };
-//   next();
-// });
-
 app.get('/', (req, res) => {
   res.send('13 Проектная работа');
 });
