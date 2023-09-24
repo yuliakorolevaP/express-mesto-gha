@@ -1,6 +1,6 @@
 const { celebrate, Joi } = require('celebrate');
 const isUrl = require('validator/lib/isURL');
-// const BadRequest = require('../errors/BadRequest');
+const BadRequest = require('./Badrequest');
 
 // eslint-disable-next-line consistent-return
 const validationUrl = (url) => {
@@ -8,7 +8,7 @@ const validationUrl = (url) => {
   if (validate) {
     return url;
   }
-  // throw new BadRequest('Некорректный адрес URL');
+  throw new BadRequest('Некорректный адрес URL');
 };
 
 const validationLogin = celebrate({
