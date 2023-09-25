@@ -1,10 +1,13 @@
-const { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND } = require('http2').constants;
-const Card = require('../models/card');
+// eslint-disable-next-line import/no-unresolved
 const BadRequest = require('../middlewares/Badrequest');
+const InternalServerError = require('../middlewares/InternalServerError');
+const NotFound = require('../middlewares/NotFound');
+const Forbidden = require('../middlewares/Forbidden');
+const Card = require('../models/card');
 
 module.exports.getCard = (req, res) => {
   Card.find({}).then((cards) => { res.send({ data: cards }); })
-    .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
+    .catch(() => new InternalServerError('На сервере произошла ошибка'));
 };
 
 module.exports.createCard = (req, res) => {
@@ -14,26 +17,26 @@ module.exports.createCard = (req, res) => {
     .then((card) => res.send({ card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequest('Переданы некорректные данные при создании карточки');
+        throw new BadRequest('Переданы некорректные данные');
       }
-      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+      throw new InternalServerError('На сервере произошла ошибка');
     });
 };
 
-module.exports.deleteCard = (req, res, next) => {
+module.exports.deleteCard = (req, res) => {
   // eslint-disable-next-line consistent-return
   Card.findById(req.params.cardId).then((card) => {
     if (!card) {
-      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+      throw new NotFound('Карточка с указанным _id не найдена.');
     } if (!card.owner.equals(req.user._id)) {
-      return res.status(403).send({ message: 'Доступ запрещен' });
+      throw new Forbidden('Доступ запрещен');
     }
-    card.deleteOne().then(() => res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
+    card.deleteOne().then(() => res.send({ message: 'Карточка удалена' }));
   })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
-      } return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+        throw new BadRequest('Переданы некорректные данные');
+      } throw new InternalServerError('На сервере произошла ошибка');
     });
 };
 
@@ -50,12 +53,12 @@ module.exports.likeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+        throw new BadRequest('Переданы некорректные данные');
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw new NotFound('Карточка с указанным _id не найдена.');
       }
-      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+      throw new InternalServerError('На сервере произошла ошибка');
     });
 };
 
@@ -70,11 +73,11 @@ module.exports.dislikeCard = (req, res) => {
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+        throw new BadRequest('Переданы некорректные данные');
       }
       if (err.name === 'DocumentNotFoundError') {
-        return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw new NotFound('Карточка с указанным _id не найдена.');
       }
-      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+      throw new InternalServerError('На сервере произошла ошибка');
     });
 };

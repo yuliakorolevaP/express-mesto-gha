@@ -1,11 +1,12 @@
 const { celebrate, Joi } = require('celebrate');
 const isUrl = require('validator/lib/isURL');
+// eslint-disable-next-line import/no-unresolved
 const BadRequest = require('./Badrequest');
 
 // eslint-disable-next-line consistent-return
-const validationUrl = (url) => {
-  const validate = isUrl(url);
-  if (validate) {
+const Url = (url) => {
+  const validation = isUrl(url);
+  if (validation) {
     return url;
   }
   throw new BadRequest('Некорректный адрес URL');
@@ -22,9 +23,9 @@ const validationCreateUser = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30),
     about: Joi.string().min(2).max(30),
-    avatar: Joi.string().custom(validationUrl),
+    avatar: Joi.string().custom(Url),
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
+    password: Joi.string().required(),
   }),
 });
 
@@ -37,11 +38,11 @@ const validationUpdateUser = celebrate({
 
 const validationUpdateAvatar = celebrate({
   body: Joi.object().keys({
-    avatar: Joi.string().required().custom(validationUrl),
+    avatar: Joi.string().required().custom(Url),
   }),
 });
 
-const validationUserId = celebrate({
+const validationGetUserById = celebrate({
   params: Joi.object().keys({
     userId: Joi.string().required().hex().length(24),
   }),
@@ -50,11 +51,11 @@ const validationUserId = celebrate({
 const validationCreateCard = celebrate({
   body: Joi.object().keys({
     name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().required().custom(validationUrl),
+    link: Joi.string().required().custom(Url),
   }),
 });
 
-const validationCardId = celebrate({
+const validationCard = celebrate({
   params: Joi.object().keys({
     cardId: Joi.string().required().hex().length(24),
   }),
@@ -65,7 +66,7 @@ module.exports = {
   validationCreateUser,
   validationUpdateUser,
   validationUpdateAvatar,
-  validationUserId,
+  validationGetUserById,
   validationCreateCard,
-  validationCardId,
+  validationCard,
 };

@@ -1,10 +1,11 @@
-const {
-  HTTP_STATUS_INTERNAL_SERVER_ERROR,
-  HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND, HTTP_STATUS_UNAUTHORIZED,
-} = require('http2').constants;
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+// eslint-disable-next-line import/no-unresolved
 const BadRequest = require('../middlewares/Badrequest');
+const InternalServerError = require('../middlewares/InternalServerError');
+const NotFound = require('../middlewares/NotFound');
+const Unauthorized = require('../middlewares/Unauthorized');
+
 const User = require('../models/user');
 
 module.exports.getAllUsers = (req, res) => {
@@ -12,7 +13,7 @@ module.exports.getAllUsers = (req, res) => {
     .then((users) => {
       res.send({ data: users });
     })
-    .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' }));
+    .catch(() => new InternalServerError('На сервере произошла ошибка'));
 };
 
 module.exports.getUserById = (req, res) => {
@@ -20,15 +21,15 @@ module.exports.getUserById = (req, res) => {
   User.findById(userId)
     .then((user) => {
       if (!user) {
-        return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+        throw new NotFound('Пользователь с указанным _id не найден');
       }
       return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+        throw new BadRequest('Переданы некорректные данные');
       }
-      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+      throw new InternalServerError('На сервере произошла ошибка');
     });
 };
 
@@ -53,7 +54,7 @@ module.exports.createUser = (req, res, next) => {
       if (err.code === 11000) {
         return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
       }
-      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+      throw new InternalServerError('На сервере произошла ошибка');
     })
     .catch(next);
 };
@@ -66,14 +67,14 @@ module.exports.updateUser = (req, res) => {
   // eslint-disable-next-line consistent-return
   ).then((user) => {
     if (user === null) {
-      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+      throw new NotFound('Пользователь с указанным _id не найден');
     }
     res.send(user);
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+      throw new BadRequest('Переданы некорректные данные');
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+    throw new InternalServerError('На сервере произошла ошибка');
   });
 };
 
@@ -85,13 +86,14 @@ module.exports.updateAvatar = (req, res) => {
   // eslint-disable-next-line consistent-return
   ).then((user) => {
     if (user === null) {
-      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь с указанным _id не найден.' });
+      throw new NotFound('Пользователь с указанным _id не найден');
     }
     res.send(user);
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
-    } return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+      throw new BadRequest('Переданы некорректные данные');
+    }
+    throw new InternalServerError('На сервере произошла ошибка');
   });
 };
 
@@ -100,21 +102,15 @@ module.exports.login = (req, res) => {
   return User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        res.status(HTTP_STATUS_UNAUTHORIZED)
-          .send({ message: 'Неправильные почта или пароль' });
+        throw new Unauthorized('Неправильные почта или пароль');
       } else {
         bcrypt.compare(password, user.password)
-          .then((matched) => {
-            if (!matched) {
-              res.status(HTTP_STATUS_UNAUTHORIZED)
-                .send({ message: 'Неправильные почта или пароль' });
-            } else {
-              const token = jwt.sign({ _id: user._id }, 'practicum', { expiresIn: '7d' });
-              res
-                .status(200)
-                .cookie('jwt', token, { httpOnly: true })
-                .send({ token });
+          .then((match) => {
+            if (!match) {
+              throw new Unauthorized('Неправильные почта или пароль');
             }
+            const token = jwt.sign({ _id: user._id }, 'practicum2023', { expiresIn: '7d' });
+            res.status(200).cookie('jwt', token, { httpOnly: true }).send({ token });
           }).catch((err) => res.send(err));
       }
     })
@@ -124,13 +120,13 @@ module.exports.login = (req, res) => {
 module.exports.getCurrentUser = (req, res) => {
   User.findById(req.user._id).then((user) => {
     if (!user) {
-      return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь по указанному _id не найден' });
+      throw new NotFound('Пользователь с указанным _id не найден');
     }
     return res.status(200).send({ user });
   }).catch((err) => {
     if (err.name === 'CastError') {
-      return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+      throw new BadRequest('Переданы некорректные данные');
     }
-    return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+    throw new InternalServerError('На сервере произошла ошибка');
   });
 };

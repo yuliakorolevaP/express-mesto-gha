@@ -9,7 +9,7 @@ const {
 } = require('../controllers/users');
 
 const {
-  validationUserId,
+  validationGetUserById,
   validationUpdateUser,
   validationUpdateAvatar,
 } = require('../middlewares/validation');
@@ -18,7 +18,7 @@ routerUsers.get('/users', getAllUsers);
 
 routerUsers.get('/users/me', getCurrentUser);
 
-routerUsers.get('/users/:userId', validationUserId, getUserById);
+routerUsers.get('/users/:userId', validationGetUserById, getUserById);
 
 routerUsers.patch('/users/me', validationUpdateUser, updateUser);
 
