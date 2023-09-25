@@ -5,7 +5,7 @@ const BadRequest = require('../middlewares/Badrequest');
 const InternalServerError = require('../middlewares/InternalServerError');
 const NotFound = require('../middlewares/NotFound');
 // eslint-disable-next-line import/order
-const { HTTP_STATUS_UNAUTHORIZED } = require('http2').constants;
+const { HTTP_STATUS_UNAUTHORIZED, HTTP_STATUS_NOT_FOUND } = require('http2').constants;
 
 const User = require('../models/user');
 
@@ -21,7 +21,7 @@ module.exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        throw new NotFound('Пользователь с указанным _id не найден');
+        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
       }
       res.send({ user });
     })
