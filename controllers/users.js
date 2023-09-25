@@ -33,7 +33,7 @@ module.exports.getUserById = (req, res) => {
     });
 };
 
-module.exports.createUser = (req, res, next) => {
+module.exports.createUser = (req, res) => {
   const {
     name, about, avatar, email,
   } = req.body;
@@ -55,8 +55,7 @@ module.exports.createUser = (req, res, next) => {
         return res.status(409).send({ message: 'Пользователь с таким email уже существует' });
       }
       throw new InternalServerError('На сервере произошла ошибка');
-    })
-    .catch(next);
+    });
 };
 
 module.exports.updateUser = (req, res) => {
