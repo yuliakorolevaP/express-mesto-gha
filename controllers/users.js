@@ -4,7 +4,8 @@ const jwt = require('jsonwebtoken');
 const BadRequest = require('../middlewares/Badrequest');
 const InternalServerError = require('../middlewares/InternalServerError');
 const NotFound = require('../middlewares/NotFound');
-const Unauthorized = require('../middlewares/Unauthorized');
+// eslint-disable-next-line import/order
+const { HTTP_STATUS_UNAUTHORIZED } = require('http2').constants;
 
 const User = require('../models/user');
 
@@ -99,19 +100,20 @@ module.exports.updateAvatar = (req, res) => {
 module.exports.login = (req, res) => {
   const { email, password } = req.body;
   return User.findOne({ email }).select('+password')
+    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
-        throw new Unauthorized('Неправильные почта или пароль');
-      } else {
-        bcrypt.compare(password, user.password)
-          .then((match) => {
-            if (!match) {
-              throw new Unauthorized('Неправильные почта или пароль');
-            }
-            const token = jwt.sign({ _id: user._id }, 'practicum2023', { expiresIn: '7d' });
-            res.status(200).cookie('jwt', token, { httpOnly: true }).send({ token });
-          }).catch((err) => res.send(err));
+        return res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: 'Необходима авторизация' });
       }
+      bcrypt.compare(password, user.password)
+        // eslint-disable-next-line consistent-return
+        .then((match) => {
+          if (!match) {
+            return res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: 'Необходима авторизация' });
+          }
+          const token = jwt.sign({ _id: user._id }, 'practicum2023', { expiresIn: '7d' });
+          res.status(200).cookie('jwt', token, { httpOnly: true }).send({ token });
+        }).catch((err) => res.send(err));
     })
     .catch((err) => res.send(err));
 };

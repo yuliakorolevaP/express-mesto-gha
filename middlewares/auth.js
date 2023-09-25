@@ -6,9 +6,7 @@ module.exports = (req, res, next) => {
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return res
-      .status(HTTP_STATUS_UNAUTHORIZED)
-      .send({ message: 'Необходима авторизация' });
+    return res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: 'Необходима авторизация' });
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -17,9 +15,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, 'practicum2023');
   } catch (err) {
-    return res
-      .status(HTTP_STATUS_UNAUTHORIZED)
-      .send({ message: 'Необходима авторизация' });
+    return res.status(HTTP_STATUS_UNAUTHORIZED).send({ message: 'Необходима авторизация' });
   }
 
   req.user = payload;
