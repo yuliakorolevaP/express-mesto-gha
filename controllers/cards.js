@@ -2,8 +2,7 @@
 const BadRequest = require('../middlewares/Badrequest');
 const InternalServerError = require('../middlewares/InternalServerError');
 // eslint-disable-next-line import/no-unresolved, import/order
-const { HTTP_STATUS_NOT_FOUND } = require('http2').constants;
-const Forbidden = require('../middlewares/Forbidden');
+const { HTTP_STATUS_NOT_FOUND, HTTP_STATUS_FORBIDDEN } = require('http2').constants;
 const Card = require('../models/card');
 
 module.exports.getCard = (req, res) => {
@@ -30,7 +29,7 @@ module.exports.deleteCard = (req, res) => {
     if (!card) {
       res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
     } if (!card.owner.equals(req.user._id)) {
-      throw new Forbidden('Доступ запрещен');
+      res.status(HTTP_STATUS_FORBIDDEN).send({ message: 'Доступ запрещен' });
     }
     card.deleteOne().then(() => res.send({ message: 'Карточка удалена' }));
   })
