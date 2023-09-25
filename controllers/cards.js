@@ -3,7 +3,7 @@ const Card = require('../models/card');
 const BadRequest = require('../middlewares/Badrequest');
 
 module.exports.getCard = (req, res) => {
-  Card.find({}).then((cards) => { res.status(200).res.send({ data: cards }); })
+  Card.find({}).then((cards) => { res.send({ data: cards }); })
     .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
 };
 
@@ -28,7 +28,7 @@ module.exports.deleteCard = (req, res, next) => {
     } if (!card.owner.equals(req.user._id)) {
       return res.status(403).send({ message: 'Доступ запрещен' });
     }
-    card.deleteOne().then(() => res.status(200).res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
+    card.deleteOne().then(() => res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
   })
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -46,7 +46,7 @@ module.exports.likeCard = (req, res) => {
     { new: true },
   )
     .orFail()
-    .then((cards) => res.status(200).res.send({ data: cards }))
+    .then((cards) => res.send({ data: cards }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
@@ -66,7 +66,7 @@ module.exports.dislikeCard = (req, res) => {
     { new: true },
   )
     .orFail()
-    .then((cards) => res.status(200).res.send({ data: cards }))
+    .then((cards) => res.send({ data: cards }))
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
