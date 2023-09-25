@@ -3,7 +3,6 @@ const jwt = require('jsonwebtoken');
 // eslint-disable-next-line import/no-unresolved
 const BadRequest = require('../middlewares/Badrequest');
 const InternalServerError = require('../middlewares/InternalServerError');
-const NotFound = require('../middlewares/NotFound');
 // eslint-disable-next-line import/order
 const { HTTP_STATUS_UNAUTHORIZED, HTTP_STATUS_NOT_FOUND } = require('http2').constants;
 
@@ -65,8 +64,8 @@ module.exports.updateUser = (req, res) => {
     { new: true, runValidators: true },
   // eslint-disable-next-line consistent-return
   ).then((user) => {
-    if (user === null) {
-      throw new NotFound('Пользователь с указанным _id не найден');
+    if (!user) {
+      res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
     }
     res.send(user);
   }).catch((err) => {
@@ -84,8 +83,8 @@ module.exports.updateAvatar = (req, res) => {
     { new: true, runValidators: true },
   // eslint-disable-next-line consistent-return
   ).then((user) => {
-    if (user === null) {
-      throw new NotFound('Пользователь с указанным _id не найден');
+    if (!user) {
+      res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
     }
     res.send(user);
   }).catch((err) => {
@@ -120,7 +119,7 @@ module.exports.login = (req, res) => {
 module.exports.getCurrentUser = (req, res) => {
   User.findById(req.user._id).then((user) => {
     if (!user) {
-      throw new NotFound('Пользователь с указанным _id не найден');
+      res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Пользователь не найден' });
     }
     return res.status(200).send({ user });
   }).catch((err) => {
