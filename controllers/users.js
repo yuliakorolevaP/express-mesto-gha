@@ -18,13 +18,12 @@ module.exports.getAllUsers = (req, res) => {
 };
 
 module.exports.getUserById = (req, res) => {
-  const { userId } = req.params;
-  User.findById(userId)
+  User.findById(req.params.userId)
     .then((user) => {
-      if (user === null) {
+      if (!user) {
         throw new NotFound('Пользователь с указанным _id не найден');
       }
-      res.send({ data: user });
+      res.send({ user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
