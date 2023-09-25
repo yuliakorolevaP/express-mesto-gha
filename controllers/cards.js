@@ -1,23 +1,22 @@
 const { HTTP_STATUS_INTERNAL_SERVER_ERROR, HTTP_STATUS_BAD_REQUEST, HTTP_STATUS_NOT_FOUND } = require('http2').constants;
 const Card = require('../models/card');
+const BadRequest = require('../middlewares/Badrequest');
 
 module.exports.getCard = (req, res) => {
-  Card.find({}).then((cards) => { res.send({ data: cards }); })
+  Card.find({}).then((cards) => { res.status(200).res.send({ data: cards }); })
     .catch(() => res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка' }));
 };
 
 module.exports.createCard = (req, res) => {
   const { name, link } = req.body;
-  const user = req.user._id;
-  Card.create({ name, link, owner: user })
-    .then((cards) => {
-      res.status(200).res.send({ data: cards });
-    })
+  const owner = req.user._id;
+  return Card.create({ name, link, owner })
+    .then((card) => res.send({ card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(HTTP_STATUS_BAD_REQUEST).send({ message: 'Переданы некорректные данные.' });
+        throw new BadRequest('Переданы некорректные данные при создании карточки');
       }
-      return res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
+      res.status(HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: 'На сервере произошла ошибка.' });
     });
 };
 
@@ -27,7 +26,7 @@ module.exports.deleteCard = (req, res, next) => {
     if (!card) {
       return res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена.' });
     } if (!card.owner.equals(req.user._id)) {
-      res.status(403).send({ message: 'Доступ запрещен' });
+      return res.status(403).send({ message: 'Доступ запрещен' });
     }
     card.deleteOne().then(() => res.status(200).res.send({ message: `Карточка ${req.params.cardId} удалена` })).catch(next);
   })
