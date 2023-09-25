@@ -21,7 +21,7 @@ module.exports.getUserById = (req, res) => {
   const { userId } = req.params;
   User.findById(userId)
     .then((user) => {
-      if (!user) {
+      if (user === null) {
         throw new NotFound('Пользователь с указанным _id не найден');
       }
       return res.send({ data: user });
