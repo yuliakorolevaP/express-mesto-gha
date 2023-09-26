@@ -1,46 +1,46 @@
 // eslint-disable-next-line import/no-unresolved
 const BadRequest = require('../middlewares/Badrequest');
-const InternalServerError = require('../middlewares/InternalServerError');
-// eslint-disable-next-line import/no-unresolved, import/order
-const { HTTP_STATUS_NOT_FOUND, HTTP_STATUS_FORBIDDEN } = require('http2').constants;
+const NotFound = require('../middlewares/NotFound');
+const Forbidden = require('../middlewares/Forbidden');
+
 const Card = require('../models/card');
 
-module.exports.getCard = (req, res) => {
+module.exports.getCard = (req, res, next) => {
   Card.find({}).then((cards) => { res.send({ data: cards }); })
-    .catch(() => new InternalServerError('На сервере произошла ошибка'));
+    .catch((err) => next(err));
 };
 
-module.exports.createCard = (req, res) => {
+module.exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   return Card.create({ name, link, owner })
     .then((card) => res.send({ card }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequest('Переданы некорректные данные');
+        next(new BadRequest('Переданы некорректные данные'));
       }
-      throw new InternalServerError('На сервере произошла ошибка');
+      next(err);
     });
 };
 
-module.exports.deleteCard = (req, res) => {
+module.exports.deleteCard = (req, res, next) => {
   // eslint-disable-next-line consistent-return
   Card.findById(req.params.cardId).then((card) => {
     if (!card) {
-      res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
+      throw new NotFound('Карточка с указанным _id не найдена');
     } if (!card.owner.equals(req.user._id)) {
-      res.status(HTTP_STATUS_FORBIDDEN).send({ message: 'Доступ запрещен' });
+      throw new Forbidden('Доступ запрещен');
     }
     card.deleteOne().then(() => res.send({ message: 'Карточка удалена' }));
   })
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequest('Переданы некорректные данные');
-      } throw new InternalServerError('На сервере произошла ошибка');
+        next(new BadRequest('Переданы некорректные данные'));
+      } next(err);
     });
 };
 
-module.exports.likeCard = (req, res) => {
+module.exports.likeCard = (req, res, next) => {
   const { cardId } = req.params;
   const user = req.user._id;
   Card.findByIdAndUpdate(
@@ -50,19 +50,18 @@ module.exports.likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
+        throw new NotFound('Карточка с указанным _id не найдена');
       } res.send({ data: card });
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequest('Переданы некорректные данные');
-      }
-      throw new InternalServerError('На сервере произошла ошибка');
+        next(new BadRequest('Переданы некорректные данные'));
+      } next(err);
     });
 };
 
-module.exports.dislikeCard = (req, res) => {
+module.exports.dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -70,14 +69,13 @@ module.exports.dislikeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        res.status(HTTP_STATUS_NOT_FOUND).send({ message: 'Карточка с указанным _id не найдена' });
+        throw new NotFound('Карточка с указанным _id не найдена');
       } res.send({ data: card });
     })
     // eslint-disable-next-line consistent-return
     .catch((err) => {
       if (err.name === 'CastError') {
-        throw new BadRequest('Переданы некорректные данные');
-      }
-      throw new InternalServerError('На сервере произошла ошибка');
+        next(new BadRequest('Переданы некорректные данные'));
+      } next(err);
     });
 };
