@@ -1,10 +1,10 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 // eslint-disable-next-line import/no-unresolved
-const BadRequest = require('../middlewares/Badrequest');
-const NotFound = require('../middlewares/NotFound');
-const Conflict = require('../middlewares/Conflict');
-const Unauthorized = require('../middlewares/Unauthorized');
+const BadRequest = require('../errors/BadRequest');
+const NotFound = require('../errors/NotFound');
+const Conflict = require('../errors/Conflict');
+const Unauthorized = require('../errors/Unauthorized');
 
 const User = require('../models/user');
 

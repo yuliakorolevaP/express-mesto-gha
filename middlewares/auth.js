@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Unauthorized = require('./Unauthorized');
+const Unauthorized = require('../errors/Unauthorized');
 
 // eslint-disable-next-line consistent-return
 module.exports = (req, res, next) => {

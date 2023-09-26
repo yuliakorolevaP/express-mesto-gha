@@ -1,7 +1,7 @@
 const { celebrate, Joi } = require('celebrate');
 const isUrl = require('validator/lib/isURL');
 // eslint-disable-next-line import/no-unresolved
-const BadRequest = require('./Badrequest');
+const BadRequest = require('../errors/BadRequest');
 
 // eslint-disable-next-line consistent-return
 const Url = (url) => {
