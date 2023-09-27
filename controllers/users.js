@@ -26,9 +26,9 @@ module.exports.getUserById = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        next(new BadRequest('Переданы некорректные данные'));
+        return next(new BadRequest('Переданы некорректные данные'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -48,12 +48,12 @@ module.exports.createUser = (req, res, next) => {
     }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new BadRequest('Некорректный адрес URL'));
+        return next(new BadRequest('Некорректный адрес URL'));
       }
       if (err.code === 11000) {
-        next(new Conflict('Пользователь с таким email уже существует'));
+        return next(new Conflict('Пользователь с таким email уже существует'));
       }
-      next(err);
+      return next(err);
     });
 };
 
@@ -62,7 +62,6 @@ module.exports.updateUser = (req, res, next) => {
     { _id: req.user._id },
     { name: req.body.name, about: req.body.about },
     { new: true, runValidators: true },
-  // eslint-disable-next-line consistent-return
   ).then((user) => {
     if (!user) {
       throw new NotFound('Пользователь не найден');
@@ -70,9 +69,9 @@ module.exports.updateUser = (req, res, next) => {
     res.send(user);
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      next(new BadRequest('Переданы некорректные данные'));
+      return next(new BadRequest('Переданы некорректные данные'));
     }
-    next(err);
+    return next(err);
   });
 };
 
@@ -81,7 +80,6 @@ module.exports.updateAvatar = (req, res, next) => {
     { _id: req.user._id },
     { avatar: req.body.avatar },
     { new: true, runValidators: true },
-  // eslint-disable-next-line consistent-return
   ).then((user) => {
     if (!user) {
       throw new NotFound('Пользователь не найден');
@@ -89,22 +87,20 @@ module.exports.updateAvatar = (req, res, next) => {
     res.send(user);
   }).catch((err) => {
     if (err.name === 'ValidationError') {
-      next(new BadRequest('Переданы некорректные данные'));
+      return next(new BadRequest('Переданы некорректные данные'));
     }
-    next(err);
+    return next(err);
   });
 };
 
 module.exports.login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findOne({ email }).select('+password')
-    // eslint-disable-next-line consistent-return
     .then((user) => {
       if (!user) {
         throw new Unauthorized('Необходима авторизация');
       }
       bcrypt.compare(password, user.password)
-        // eslint-disable-next-line consistent-return
         .then((match) => {
           if (!match) {
             throw new Unauthorized('Необходима авторизация');
@@ -124,8 +120,8 @@ module.exports.getCurrentUser = (req, res, next) => {
     return res.status(200).send({ user });
   }).catch((err) => {
     if (err.name === 'CastError') {
-      next(new BadRequest('Переданы некорректные данные'));
+      return next(new BadRequest('Переданы некорректные данные'));
     }
-    next(err);
+    return next(err);
   });
 };
